@@ -1,10 +1,15 @@
 "use client"
 
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
-const Calendar = () => {
+type CalendarProps = {
+    onDateClick: (date: Date) => void;
+    memos: { [key: string]: string };
+};
+
+const Calendar = ({ onDateClick, memos }: CalendarProps) => {
     // ステート定義
     const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -63,23 +68,36 @@ const Calendar = () => {
                     </div>
                 ))}
 
-                {/* 日付の余白 */}
+                {/* 空白のセル */}
                 {Array(firstDayOfMonth)
                     .fill(null)
                     .map((_, index) => (
                         <div key={`empty-${index}`} />
                     ))}
 
-                {/* 日付のマップ */}
-                {days.map((day) => (
-                    <Button
-                        key={day}
-                        variant="outline"
-                        className="h-12 w-full relative"
-                    >
-                        {day}
-                    </Button>
-                ))}
+                {/* 日付のセル */}
+                {days.map((day) => {
+                    const date = new Date(
+                        currentDate.getFullYear(),
+                        currentDate.getMonth(),
+                        day
+                    );
+                    const dateKey = date.toISOString().split("T")[0];
+                    const hasMemo = dateKey in memos;
+                    return (
+                        <Button
+                            key={day}
+                            variant="outline"
+                            className="h-12 w-full relative"
+                            onClick={() => onDateClick(date)}
+                        >
+                            {day}
+                            {hasMemo && (
+                                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg--lime-600 rounded-full opacity-30" />
+                            )}
+                        </Button>
+                    );
+                })}
             </div>
         </div>
     );
